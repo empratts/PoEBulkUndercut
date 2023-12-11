@@ -53,7 +53,7 @@ async function clipboardMod(currencyRatio, currencyType, sellType) {
             price = Math.floor(price);
         }
 
-        navigator.clipboard.writeText(`~price ${price}/${stackSize} ${currencyType}`)
+        navigator.clipboard.writeText(`~price ${price}/${stackSize} chaos`)
     } else {
         alert("Error getting stack size");
     }

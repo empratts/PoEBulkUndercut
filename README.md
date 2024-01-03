@@ -5,7 +5,7 @@ PoE Bulk Undercut is a browser extension that interacts with the official Path o
 ## Workflow
 
 - Use a trade tool to open a search for the item with a minimum stock set (or do it manually)
-    - Ensure that the tool leaves the item description on the clipboard
+  - Ensure that the tool leaves the item description on the clipboard
 - Choose the listing that you want to undercut
 - Right Click on the item in-game (assuming it is in a public tab)
 - Paste

@@ -1,6 +1,6 @@
 // Saves options to chrome.storage
 const saveOptions = () => {
-    const search_percent = document.getElementById('search_percent').value;
+    const search_percent = Math.max(Math.min(Math.floor(document.getElementById('search_percent').value), 5), 100);
   
     chrome.storage.sync.set(
       { searchPercent: search_percent },

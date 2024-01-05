@@ -1,12 +1,13 @@
 {
     "content_scripts": [ {
-       "js": [ "button.js" ],
-       "matches": [ "https://*.pathofexile.com/trade/*" ]
+       "js": [ "undercut.js" ],
+       "matches": [ "https://*.pathofexile.com/trade/exchange/*" ]
     } ],
+    "options_page": "options/options.html",
     "description": "Adds a button to the Path of Exile bulk trade site which allows you to copy an undercut price to the clipboard.",
     "manifest_version": 3,
     "name": "PoE Bulk Undercut",
-    "permissions": [  ],
+    "permissions": [ "storage" ],
     "version": "0.1"
  }
  

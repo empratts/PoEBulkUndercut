@@ -38,7 +38,6 @@ function windowListener(mutationList) {
             chaos_button.name = "chaos_search_button";
             chaos_button.onclick = async function () {
                 let clip =  await getCurrencyFromClipboard();
-                console.log(clip)
                 selectCurrency(clip.currency_name, clip.header_text, "Chaos Orb", clip.count);
             };
             document.querySelector(".controls-center").append(chaos_button);
@@ -96,11 +95,13 @@ async function getCurrencyFromClipboard() {
     item_text = await navigator.clipboard.readText();
 
     let header_text = "";
+    let currency_name = "";
+
     for (row of sellable) {
         for (d of row["data"]) {
             if (item_text.includes(d)) {
                 header_text = row["name"];
-                var currency_name = d
+                currency_name = d;
 
                 break;
             }
@@ -114,23 +115,25 @@ async function getCurrencyFromClipboard() {
     if (count) {
         count = Number(count[1].replaceAll(",", ""));
     }
-
-    console.log(`Found: ${currency_name} in ${header_text} with count ${count}`);
+    else {
+        count = 0;
+    }
 
     return {currency_name, header_text, count};
 }
 
 async function selectCurrency(currency_name, header_text, sell_for, count) {
-    console.log(`Looking for ${currency_name} in ${header_text}`);
+    //Validate that we got good input from the clipboard
+    if (currency_name == "" || header_text == "" || count == 0) {
+        alert("Failed getting bulk item info from the clipboard. Please re-copy from the game client.");
+        return;
+    }
     //Get the search percentage setting
     let search_percent = 100;
-    chrome.storage.sync.get(
-        { searchPercent: 100 },
-        (items) => {
-          search_percent = items.searchPercent;
-        }
-      );
-    console.log(search_percent);
+    await chrome.storage.sync.get(["searchPercent"]).then((items) => {
+        search_percent = items.searchPercent;
+    });
+    
     //Step 1, press clear
     document.querySelector('.btn.clear-btn').click();
 
@@ -139,9 +142,8 @@ async function selectCurrency(currency_name, header_text, sell_for, count) {
     //minimum stock
     let e = new Event("change");
     let stock = document.querySelector(".form-control.minmax");
-    stock.value = count;
+    stock.value = Math.ceil(count * (search_percent / 100.0));
     stock.dispatchEvent(e);
-    //stock.removeAttribute("value");
 
     //Step 2, Check if the "Item I Want" sub menu for the item is already open
     //get the brown panes - the first is the "want" and the second is the "have"
@@ -152,7 +154,6 @@ async function selectCurrency(currency_name, header_text, sell_for, count) {
     for (want of want_filters) {
         //find the filter that matches the header for our currency item
         if (want.querySelector('span:first-child').innerHTML.includes(header_text)) {
-            console.log(`Found ${header_text}`)
             //if it is not open, click it and wait for it to be open
             if (want.childElementCount == 1) {
                 want.firstElementChild.click();
@@ -162,7 +163,6 @@ async function selectCurrency(currency_name, header_text, sell_for, count) {
             filter_options = want.lastElementChild.children
             for (option of filter_options) {
                 if (option.title == currency_name || option.getAttribute("data-original-title") == currency_name) {
-                    console.log(`Found ${currency_name}`)
                     option.click();
                     await until(_ => option.classList.length == 2);
                     break;

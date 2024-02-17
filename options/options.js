@@ -19,10 +19,9 @@ const saveOptions = () => {
   // stored in chrome.storage.
   const restoreOptions = () => {
     chrome.storage.sync.get(
-      { searchPercent: 100 },
+      { searchPercent:100 },
       (items) => {
         document.getElementById('search_percent').value = items.searchPercent;
-        //document.getElementById('like').checked = items.likesColor;
       }
     );
   };

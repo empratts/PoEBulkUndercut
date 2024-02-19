@@ -197,6 +197,9 @@ async function selectCurrency(currency_name, header_text, sell_for, count) {
 }
 
 async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
+    
+    await chrome.runtime.sendMessage({greeting: "hello"});
+
     if (currencyType != 'Chaos Orb' && currencyType != "Divine Orb") {
         return;
     }

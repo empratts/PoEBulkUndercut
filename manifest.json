@@ -3,6 +3,9 @@
        "js": [ "undercut.js" ],
        "matches": [ "https://*.pathofexile.com/trade/exchange/*" ]
     } ],
+    "background": {
+      "service_worker": "service-worker.js"
+    },
     "options_page": "options/options.html",
     "description": "Adds a button to the Path of Exile bulk trade site which allows you to copy an undercut price to the clipboard.",
     "manifest_version": 3,

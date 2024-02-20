@@ -56,8 +56,8 @@ function windowListener(mutationList) {
         if (mutation.target.className == 'results') {
             let rows = mutation.target.getElementsByClassName('row exchange');
             for (row of rows) {
-                var hasButton = row.querySelector('.btns > .btn-group > button:last-child').innerHTML;
-                if (hasButton != "Undercut") {
+                var hasButton = row.querySelector('.btn-undercut');
+                if (hasButton == null) {
                     const rowID = row.getAttribute('data-id');
                     const haveRatio = Number(row.querySelector(".per-have > span:last-child").innerText.match(/[\d\.]*/));
                     const wantRatio = Number(row.querySelector(".per-want > span:last-child").innerText.match(/[\d\.]*/));
@@ -67,12 +67,12 @@ function windowListener(mutationList) {
                     if (currencyType == 'Chaos Orb' || currencyType == 'Divine Orb'){
                         let button = document.createElement("button");
                         button.innerHTML = "Undercut";
-                        button.classList.add("btn", "btn-default");
+                        button.classList.add("btn", "btn-default", "btn-undercut");
                         button.name = `${rowID}_Undercut`
                         button.onclick = function () {
                             clipboardMod(haveRatio, wantRatio, currencyType, sellType);
                         };
-                        row.querySelector('.btns > .btn-group').append(button);
+                        row.querySelector('.price').prepend(button);
                     }
                 }
             }

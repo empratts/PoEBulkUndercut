@@ -232,13 +232,11 @@ async function openAdvancedPricingWindow(haveRatio, wantRatio, currencyType, sel
     let stackSize = itemText.match(/Stack Size: ([\d\.,]+)/);
     if (stackSize) {
         stackSize = Number(stackSize[1].replaceAll(",", ""));
-        await chrome.runtime.sendMessage({price_info: `stack=${stackSize}&have=${haveRatio}&want=${wantRatio}&currency=${sellType}`});
+        await chrome.runtime.sendMessage({price_info: `stack=${stackSize}&have=${haveRatio}&want=${wantRatio}&currency=${currencyType}&sell=${sellType}`});
     } else {
         alert("Error getting stack size");
     }
-
 }
-
 
 async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
     

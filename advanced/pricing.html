@@ -4,12 +4,16 @@
     <title>POE Bulk Undercut Advanced Pricing</title>
   </head>
   <body>
-    <div class="slidecontainer">
+    <h3>Number of Trades</h3>
+    <div>
+      <div class="slidecontainer">
         <input type="range" min="1" max="100" value="1" class="slider" id="numberOfSales">
+        <p id="status" style="font-size: large;">1</p>
+      </div>
+      
+      <button id="trade">Trade</button>
+      <button id="tradeAndClose">Trade and Close</button>
     </div>
-
-    <div id="status">1</div>
-    <button id="trade">Trade</button>
 
     <script src="pricing.js"></script>
   </body>

@@ -58,3 +58,15 @@ slider.oninput = function() {
 
   updatePrice();
 }
+
+slider.addEventListener("wheel", function(e) {
+  if (e.deltaY < 0) {
+    slider.valueAsNumber += 1;
+  } else {
+    slider.value -= 1;
+  }
+  slider_value = slider.value;
+  e.preventDefault();
+  e.stopPropagation();
+  updatePrice();
+})

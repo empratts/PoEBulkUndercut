@@ -27,7 +27,12 @@ if (have_ratio >= 1) {
 }
 
 var slider = document.getElementById("numberOfSales");
-var output = document.getElementById("status");
+var selling = document.getElementById("selling");
+var selling_for = document.getElementById("for");
+var in_trades = document.getElementById("in_trades");
+var loss_text = document.getElementById("loss");
+var left_text = document.getElementById("left");
+var income_text = document.getElementById("income");
 
 slider.setAttribute("max", max_trades);
 slider.setAttribute("value", max_trades);
@@ -40,13 +45,23 @@ function updatePrice() {
     sell_stack_size = Math.ceil(want_ratio * slider_value + .000000001);
     trades = Math.floor(stack_size / sell_stack_size);
     left = stack_size - (trades * sell_stack_size);
-    output.innerHTML = `Selling ${sell_stack_size} for ${slider_value} ${currency_type} in ${trades} trades. Loss: ${(unit_price * trades).toFixed(3)}  Left: ${left}   Income: ${slider_value * trades} ${currency_type}`;
+    selling.innerHTML = `Selling ${sell_stack_size}`
+    selling_for.innerHTML = `for ${slider_value} ${currency_type}`
+    in_trades.innerHTML = `in ${trades} trades`
+    loss_text.innerHTML = `Loss: ${(unit_price * trades).toFixed(3)}`
+    left_text.innerHTML = `Left: ${left}`
+    income_text.innerHTML = `Income: ${slider_value * trades} ${currency_type}`
   } else {
     sell_stack_size = slider_value;
     sell_price = Math.floor(sell_stack_size * unit_price - 0.000000001);
     trades = Math.floor(stack_size / sell_stack_size);
     left = stack_size - (trades * sell_stack_size);
-    output.innerHTML = `Selling ${sell_stack_size} for ${sell_price} ${currency_type} in ${trades} trades. Loss: ${trades}  Left: ${left}   Income: ${sell_price * trades} ${currency_type}`;
+    selling.innerHTML = `Selling ${sell_stack_size}`
+    selling_for.innerHTML = `for ${sell_price} ${currency_type}`
+    in_trades.innerHTML = `in ${trades} trades`
+    loss_text.innerHTML = `Loss: ${trades}`
+    left_text.innerHTML = `Left: ${left}`
+    income_text.innerHTML = `Income:  ${sell_price * trades} ${currency_type}`
   }
 
 }

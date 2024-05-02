@@ -33,6 +33,8 @@ var in_trades = document.getElementById("in_trades");
 var loss_text = document.getElementById("loss");
 var left_text = document.getElementById("left");
 var income_text = document.getElementById("income");
+var price_button = document.getElementById("price")
+var price_and_close_button = document.getElementById("priceAndClose")
 
 slider.setAttribute("max", max_trades);
 slider.setAttribute("value", max_trades);
@@ -63,7 +65,19 @@ function updatePrice() {
     left_text.innerHTML = `Left: ${left}`
     income_text.innerHTML = `Income:  ${sell_price * trades} ${currency_type}`
   }
+}
 
+function clipboardMod(stack, price, type) {
+  if (type != 'Chaos Orb' && type != "Divine Orb") {
+    return;
+  }
+
+  let orb = 'chaos'
+  if (type == 'Divine Orb') {
+      orb = 'divine'
+  }
+
+  navigator.clipboard.writeText(`~price ${price}/${stack} ${orb}`);
 }
 
 updatePrice();
@@ -85,3 +99,15 @@ slider.addEventListener("wheel", function(e) {
   e.stopPropagation();
   updatePrice();
 })
+
+price_button.onclick = function () {
+  clipboardMod(sell_stack_size, sell_price, currency_type);
+};
+
+price_and_close_button.onclick = function () {
+  clipboardMod(sell_stack_size, sell_price, currency_type);
+
+  chrome.tabs.getCurrent(function(tab) {
+    chrome.tabs.remove(tab.id, function() { });
+  });
+};

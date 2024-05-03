@@ -24,7 +24,7 @@ let sellable = [
     {name: "Essences", data: ["Whispering Essence of Hatred", "Muttering Essence of Hatred", "Weeping Essence of Hatred", "Wailing Essence of Hatred", "Screaming Essence of Hatred", "Shrieking Essence of Hatred", "Deafening Essence of Hatred", "Whispering Essence of Woe", "Muttering Essence of Woe", "Weeping Essence of Woe", "Wailing Essence of Woe", "Screaming Essence of Woe", "Shrieking Essence of Woe", "Deafening Essence of Woe", "Whispering Essence of Greed", "Muttering Essence of Greed", "Weeping Essence of Greed", "Wailing Essence of Greed", "Screaming Essence of Greed", "Shrieking Essence of Greed", "Deafening Essence of Greed", "Whispering Essence of Contempt", "Muttering Essence of Contempt", "Weeping Essence of Contempt", "Wailing Essence of Contempt", "Screaming Essence of Contempt", "Shrieking Essence of Contempt", "Deafening Essence of Contempt", "Muttering Essence of Sorrow", "Weeping Essence of Sorrow", "Wailing Essence of Sorrow", "Screaming Essence of Sorrow", "Shrieking Essence of Sorrow", "Deafening Essence of Sorrow", "Muttering Essence of Anger", "Weeping Essence of Anger", "Wailing Essence of Anger", "Screaming Essence of Anger", "Shrieking Essence of Anger", "Deafening Essence of Anger", "Muttering Essence of Torment", "Weeping Essence of Torment", "Wailing Essence of Torment", "Screaming Essence of Torment", "Shrieking Essence of Torment", "Deafening Essence of Torment", "Muttering Essence of Fear", "Weeping Essence of Fear", "Wailing Essence of Fear", "Screaming Essence of Fear", "Shrieking Essence of Fear", "Deafening Essence of Fear", "Weeping Essence of Suffering", "Wailing Essence of Suffering", "Screaming Essence of Suffering", "Shrieking Essence of Suffering", "Deafening Essence of Suffering", "Weeping Essence of Rage", "Wailing Essence of Rage", "Screaming Essence of Rage", "Shrieking Essence of Rage", "Deafening Essence of Rage", "Weeping Essence of Wrath", "Wailing Essence of Wrath", "Screaming Essence of Wrath", "Shrieking Essence of Wrath", "Deafening Essence of Wrath", "Weeping Essence of Doubt", "Wailing Essence of Doubt", "Screaming Essence of Doubt", "Shrieking Essence of Doubt", "Deafening Essence of Doubt", "Wailing Essence of Anguish", "Screaming Essence of Anguish", "Shrieking Essence of Anguish", "Deafening Essence of Anguish", "Wailing Essence of Loathing", "Screaming Essence of Loathing", "Shrieking Essence of Loathing", "Deafening Essence of Loathing", "Wailing Essence of Spite", "Screaming Essence of Spite", "Shrieking Essence of Spite", "Deafening Essence of Spite", "Wailing Essence of Zeal", "Screaming Essence of Zeal", "Shrieking Essence of Zeal", "Deafening Essence of Zeal", "Screaming Essence of Misery", "Shrieking Essence of Misery", "Deafening Essence of Misery", "Screaming Essence of Dread", "Shrieking Essence of Dread", "Deafening Essence of Dread", "Screaming Essence of Scorn", "Shrieking Essence of Scorn", "Deafening Essence of Scorn", "Screaming Essence of Envy", "Shrieking Essence of Envy", "Deafening Essence of Envy", "Essence of Hysteria", "Essence of Insanity", "Essence of Horror", "Essence of Delirium", "Remnant of Corruption"]} 
     ];
 
-function windowListener(mutationList) {
+async function windowListener(mutationList) {
     for (mutation of mutationList) {
         let my_buttons = document.getElementsByClassName("btn chaos-search-button")
         if (my_buttons.length == 0) {
@@ -52,8 +52,8 @@ function windowListener(mutationList) {
         if (mutation.target.className == 'results') {
             let rows = mutation.target.getElementsByClassName('row exchange');
             for (row of rows) {
-                var hasButton = row.querySelector('.btns > .btn-group > button:last-child').innerHTML;
-                if (hasButton != "Undercut") {
+                var hasButton = row.querySelector('.btn-undercut');
+                if (hasButton == null) {
                     const rowID = row.getAttribute('data-id');
                     const haveRatio = Number(row.querySelector(".per-have > span:last-child").innerText.match(/[\d\.]*/));
                     const wantRatio = Number(row.querySelector(".per-want > span:last-child").innerText.match(/[\d\.]*/));
@@ -63,12 +63,27 @@ function windowListener(mutationList) {
                     if (currencyType == 'Chaos Orb' || currencyType == 'Divine Orb'){
                         let button = document.createElement("button");
                         button.innerHTML = "Undercut";
-                        button.classList.add("btn", "btn-default");
+                        button.classList.add("btn", "btn-default", "btn-undercut");
                         button.name = `${rowID}_Undercut`
                         button.onclick = function () {
                             clipboardMod(haveRatio, wantRatio, currencyType, sellType);
                         };
-                        row.querySelector('.btns > .btn-group').append(button);
+                        row.querySelector('.price').prepend(button);
+                        
+                        let adv_pricing = false;
+                        await chrome.storage.sync.get(["advancedPricing"]).then((items) => {
+                            adv_pricing = items.advancedPricing;
+                        });
+                        if (adv_pricing) {
+                            button = document.createElement("button");
+                            button.innerHTML = "Adv Price";
+                            button.classList.add("btn", "btn-default", "btn-advanced");
+                            button.name = `${rowID}_Advanced`
+                            button.onclick = function () {
+                                openAdvancedPricingWindow(haveRatio, wantRatio, currencyType, sellType);
+                            };
+                            row.querySelector('.price').prepend(button);
+                        }
                     }
                 }
             }
@@ -192,7 +207,35 @@ async function selectCurrency(currency_name, header_text, sell_for, count) {
     document.querySelector(".btn.search-btn").click();
 }
 
+async function openAdvancedPricingWindow(haveRatio, wantRatio, currencyType, sellType) {
+    
+    if (currencyType != 'Chaos Orb' && currencyType != "Divine Orb") {
+        return;
+    }
+
+    let orb = 'chaos'
+    if (currencyType == 'Divine Orb') {
+        orb = 'divine'
+    }
+
+    let itemText = await navigator.clipboard.readText();
+    let clipboardContainsSellType = itemText.indexOf(sellType);
+    if (clipboardContainsSellType == -1) {
+        alert("Clipboard does not contain the description of the item in this result. Please re-copy from the game client.");
+        return
+    }
+
+    let stackSize = itemText.match(/Stack Size: ([\d\.,]+)/);
+    if (stackSize) {
+        stackSize = Number(stackSize[1].replaceAll(",", ""));
+        await chrome.runtime.sendMessage({price_info: `stack=${stackSize}&have=${haveRatio}&want=${wantRatio}&currency=${currencyType}&sell=${sellType}`});
+    } else {
+        alert("Error getting stack size");
+    }
+}
+
 async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
+    
     if (currencyType != 'Chaos Orb' && currencyType != "Divine Orb") {
         return;
     }

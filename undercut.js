@@ -34,7 +34,7 @@ async function windowListener(mutationList) {
             chaos_button.name = "chaos_search_button";
             chaos_button.onclick = async function () {
                 let clip =  await getCurrencyFromClipboard();
-                selectCurrency(clip.currency_name, clip.header_text, "Chaos Orb", clip.count);
+                selectCurrency(clip.item_name, clip.header_text, "Chaos Orb", clip.stack_size);
             };
             document.querySelector(".controls-center").append(chaos_button);
 
@@ -44,7 +44,7 @@ async function windowListener(mutationList) {
             divine_button.name = "divine_search_button";
             divine_button.onclick = async function () {
                 let clip = await getCurrencyFromClipboard();
-                selectCurrency(clip.currency_name, clip.header_text, "Divine Orb", clip.count);
+                selectCurrency(clip.item_name, clip.header_text, "Divine Orb", clip.stack_size);
             };
             document.querySelector(".controls-center").append(divine_button);
         }
@@ -100,15 +100,18 @@ function until(conditionFunction) {
     return new Promise(poll);
 }
 
-function getHeaderTextAndName(item_text){
+async function getCurrencyFromClipboard() {
+    let item_text = await navigator.clipboard.readText();
+
     let header_text = "";
-    let currency_name = "";
+    let item_name = "";
+    let stack_size = 0;
 
     for (row of sellable) {
         for (d of row["data"]) {
             if (item_text.includes(d) && !item_text.includes(d + " ")) {
                 header_text = row["name"];
-                currency_name = d;
+                item_name = d;
                 break;
             }
         }
@@ -116,60 +119,56 @@ function getHeaderTextAndName(item_text){
             break;
         }
     }
-    return {header_text, currency_name};
-}
 
-
-async function getCurrencyFromClipboard() {
-    
-    item_text = await navigator.clipboard.readText();
-
-    let header_text = "";
-    let currency_name = "";
-    let count = 0;
-
-    let h = getHeaderTextAndName(item_text);
-    header_text = h.header_text;
-    currency_name = h.currency_name
-
-    if("" == header_text){
+    if("" != header_text){
+        stack_size = item_text.match(/Stack Size: ([\d\.,]+)/);
+        if (stack_size){
+            stack_size = Number(stack_size[1].replaceAll(",", "").replaceAll(".", ""));
+        }
+        else {
+            stack_size = 1
+        }
+    }
+    else {
         let debug_mode = false;
         let debug_item_count = 0;
         let debug_item_name = "";
         await chrome.storage.sync.get(["debugMode", "debugItemCount", "debugItemName"]).then((items) => {
-            
             debug_mode = items.debugMode;
             debug_item_count = items.debugItemCount
             debug_item_name = items.debugItemName
         });
-        if(debug_mode){
-            item_text = debug_item_name + "\nStack Size: " + debug_item_count.toString();
 
-            h = getHeaderTextAndName(item_text);
-            header_text = h.header_text;
-            currency_name = h.currency_name
+        console.log("Getting debug currency: " + debug_item_name);
 
-            if("" == header_text){
-                alert("Debug item name not found. Check settings.")
-                return {currency_name, header_text, count}
+        if (debug_mode) {
+            for (row of sellable) {
+                for (d of row["data"]) {
+                    if (debug_item_name.includes(d) && !debug_item_name.includes(d + " ")) {
+                        header_text = row["name"];
+                        item_name = d;
+                        break;
+                    }
+                }
+                if ("" != header_text) {
+                    break;
+                }
             }
+            stack_size = debug_item_count;
         }
     }
 
-    count = item_text.match(/Stack Size: ([\d\.,]+)/);
-    if (count) {
-        count = Number(count[1].replaceAll(",", "").replaceAll(".", ""));
-    }
-    else {
-        count = 0;
+    if (item_name == "" || header_text == "" || stack_size == 0) {
+        alert("Failed getting bulk item info from the clipboard. Please re-copy from the game client.");
+        return;
     }
 
-    return {currency_name, header_text, count};
+    return {item_name, header_text, stack_size};
 }
 
-async function selectCurrency(currency_name, header_text, sell_for, count) {
+async function selectCurrency(currency_name, header_text, sell_for, stack_size) {
     //Validate that we got good input from the clipboard
-    if (currency_name == "" || header_text == "" || count == 0) {
+    if (currency_name == "" || header_text == "" || stack_size == 0) {
         alert("Failed getting bulk item info from the clipboard. Please re-copy from the game client.");
         return;
     }
@@ -187,7 +186,7 @@ async function selectCurrency(currency_name, header_text, sell_for, count) {
     //minimum stock
     let e = new Event("change");
     let stock = document.querySelector(".form-control.minmax");
-    stock.value = Math.ceil(count * (search_percent / 100.0));
+    stock.value = Math.ceil(stack_size * (search_percent / 100.0));
     stock.dispatchEvent(e);
 
     //Step 2, Check if the "Item I Want" sub menu for the item is already open
@@ -252,20 +251,14 @@ async function openAdvancedPricingWindow(haveRatio, wantRatio, currencyType, sel
         orb = 'divine'
     }
 
-    let item_text = await navigator.clipboard.readText();
-    let clipboardContainsSellType = item_text.indexOf(sellType);
-    if (clipboardContainsSellType == -1) {
+    let t = await getCurrencyFromClipboard();
+    
+    if (t.item_name != sellType) {
         alert("Clipboard does not contain the description of the item in this result. Please re-copy from the game client.");
         return
     }
 
-    let stackSize = item_text.match(/Stack Size: ([\d\.,]+)/);
-    if (stackSize) {
-        stackSize = Number(stackSize[1].replaceAll(",", "").replaceAll(".", ""));
-        await chrome.runtime.sendMessage({price_info: `stack=${stackSize}&have=${haveRatio}&want=${wantRatio}&currency=${currencyType}&sell=${sellType}`});
-    } else {
-        alert("Error getting stack size");
-    }
+    await chrome.runtime.sendMessage({price_info: `stack=${t.stack_size}&have=${haveRatio}&want=${wantRatio}&currency=${currencyType}&sell=${sellType}`});
 }
 
 async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
@@ -279,41 +272,16 @@ async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
         orb = 'divine'
     }
 
-    //check if debug mode is enabled
-    let debug_mode = false;
-
-    await chrome.storage.sync.get(["debugMode"]).then((items) => {
-        debug_mode = items.debugMode;
-    });
-
-    let item_text = await navigator.clipboard.readText();
-    let clipboardContainsSellType = item_text.indexOf(sellType);
-    let stackSize = 0;
-    if (clipboardContainsSellType == -1) {
-        if(debug_mode){
-            await chrome.storage.sync.get(["debugItemCount"]).then((items) => {
-                stackSize = items.debugItemCount;
-            });
-        }
-        else {
-            alert("Clipboard does not contain the description of the item in this result. Please re-copy from the game client.");
-            return;
-        }
-    }
-    else{
-        stackSize = item_text.match(/Stack Size: ([\d\.,]+)/);
-        if (stackSize){
-            stackSize = Number(stackSize[1].replaceAll(",", "").replaceAll(".", ""));
-        }
-        else{
-            alert("Error getting stack size");
-            return;
-        }
+    let t = await getCurrencyFromClipboard();
+    
+    if (t.item_name != sellType) {
+        alert("Clipboard does not contain the description of the item in this result. Please re-copy from the game client.");
+        return
     }
 
     let price = 0
     if (haveRatio >= 1) {
-        price = haveRatio * stackSize;
+        price = haveRatio * t.stack_size;
         if (price - Math.floor(price) === 0) {
             price -= 1;
         } else {
@@ -321,12 +289,12 @@ async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
         }
     }
     else {
-        price = Math.floor((stackSize - 1) / wantRatio)
-        stackSize = Math.round(price * wantRatio) + 1
+        price = Math.floor((t.stack_size - 1) / wantRatio)
+        t.stack_size = Math.round(price * wantRatio) + 1
     }
 
     if (price > 0){
-        navigator.clipboard.writeText(`~price ${price}/${stackSize} ${orb}`)
+        navigator.clipboard.writeText(`~price ${price}/${t.stack_size} ${orb}`)
     }
     else {
         alert("Price is zero. Try a larger stack.")

@@ -6,7 +6,7 @@ const saveOptions = () => {
     const debug_item_count = Math.floor(document.getElementById("debug_item_count").value);
     const debug_item_name = document.getElementById("debug_item_name").value;
   
-    chrome.storage.sync.set({ searchPercent: search_percent , advancedPricing: advanced_pricing, debugMode: debug_mode, debugItemCount: debug_item_count, debugItemName: debug_item_name}).then(() => {
+    chrome.storage.sync.set({ search_percent: search_percent , advanced_pricing: advanced_pricing, debug_mode: debug_mode, debug_item_count: debug_item_count, debug_item_name: debug_item_name}).then(() => {
         // Update status to let user know options were saved.
         const status = document.getElementById('status');
         status.textContent = 'Options saved.';
@@ -17,12 +17,12 @@ const saveOptions = () => {
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
 const restoreOptions = () => {
-    chrome.storage.sync.get(["searchPercent", "advancedPricing", "debugMode", "debugItemCount", "debugItemName"]).then((items) => {
-        document.getElementById('search_percent').setAttribute("value", items.searchPercent);
-        document.getElementById("adv_pricing").checked = items.advancedPricing;
-        document.getElementById("debug_mode").checked = items.debugMode;
-        document.getElementById("debug_item_count").setAttribute("value", items.debugItemCount);
-        document.getElementById("debug_item_name").setAttribute("value", items.debugItemName);
+    chrome.storage.sync.get(["search_percent", "advanced_pricing", "debug_mode", "debug_item_count", "debug_item_name"]).then((items) => {
+        document.getElementById('search_percent').setAttribute("value", items.search_percent);
+        document.getElementById("adv_pricing").checked = items.advanced_pricing;
+        document.getElementById("debug_mode").checked = items.debug_mode;
+        document.getElementById("debug_item_count").setAttribute("value", items.debug_item_count);
+        document.getElementById("debug_item_name").setAttribute("value", items.debug_item_name);
     });
 };
   

@@ -1,11 +1,8 @@
-let clipText = "";
-let target = document.getElementById("app");
+let global_target = document.getElementById("app");
 
-let windowObserver = new MutationObserver(windowListener);
+let global_window_observer = new MutationObserver(windowListener);
 
-let filterObserver = null;
-
-let sellable = [
+let global_sellable = [
     {name: "Currency", data: ["Orb of Alteration", "Orb of Fusing", "Orb of Alchemy", "Chaos Orb", "Gemcutter's Prism", "Exalted Orb", "Chromatic Orb", "Jeweller's Orb", "Engineer's Orb", "Infused Engineer's Orb", "Orb of Chance", "Cartographer's Chisel", "Orb of Scouring", "Blessed Orb", "Orb of Regret", "Regal Orb", "Divine Orb", "Vaal Orb", "Orb of Annulment", "Orb of Binding", "Ancient Orb", "Orb of Horizons", "Harbinger's Orb", "Fracturing Orb", "Scroll of Wisdom", "Portal Scroll", "Armourer's Scrap", "Blacksmith's Whetstone", "Glassblower's Bauble", "Orb of Transmutation", "Orb of Augmentation", "Mirror of Kalandra", "Eternal Orb", "Rogue's Marker", "Facetor's Lens", "Prime Regrading Lens", "Secondary Regrading Lens", "Tempering Orb", "Tailoring Orb", "Awakened Sextant", "Elevated Sextant", "Surveyor's Compass", "Orb of Unmaking", "Blessing of Xoph", "Blessing of Tul", "Blessing of Esh", "Blessing of Uul-Netol", "Blessing of Chayula", "Veiled Chaos Orb", "Enkindling Orb", "Instilling Orb", "Sacred Orb", "Stacked Deck", "Gold", "Crusader's Exalted Orb", "Redeemer's Exalted Orb", "Hunter's Exalted Orb", "Warlord's Exalted Orb", "Awakener's Orb", "Orb of Dominance", "Eldritch Chaos Orb", "Eldritch Exalted Orb", "Eldritch Orb of Annulment", "Lesser Eldritch Ember", "Greater Eldritch Ember", "Grand Eldritch Ember", "Exceptional Eldritch Ember", "Lesser Eldritch Ichor", "Greater Eldritch Ichor", "Grand Eldritch Ichor", "Exceptional Eldritch Ichor", "Orb of Conflict", "Tainted Chromatic Orb", "Tainted Orb of Fusing", "Tainted Jeweller's Orb", "Tainted Chaos Orb", "Tainted Exalted Orb", "Tainted Mythic Orb", "Tainted Armourer's Scrap", "Tainted Blacksmith's Whetstone", "Tainted Divine Teardrop", "Tainted Blessing", "Wild Crystallised Lifeforce", "Vivid Crystallised Lifeforce", "Primal Crystallised Lifeforce", "Sacred Crystallised Lifeforce", "Armour Recombinator", "Weapon Recombinator", "Jewellery Recombinator"]},
     {name: "Fragments &amp; Scarabs", data: ["Sacrifice at Dusk", "Sacrifice at Midnight", "Sacrifice at Dawn", "Sacrifice at Noon", "Mortal Grief", "Mortal Rage", "Mortal Hope", "Mortal Ignorance", "Fragment of the Hydra", "Fragment of the Phoenix", "Fragment of the Minotaur", "Fragment of the Chimera", "Fragment of Enslavement", "Fragment of Eradication", "Fragment of Constriction", "Fragment of Purification", "Fragment of Terror", "Fragment of Emptiness", "Fragment of Shape", "Fragment of Knowledge", "Al-Hezmin's Crest", "Baran's Crest", "Drox's Crest", "Veritania's Crest", "Beauty", "Curiosity", "Ambition", "Cooperation", "Offering to the Goddess", "Tribute to the Goddess", "Gift to the Goddess", "Dedication to the Goddess", "Sacrifice Set", "Mortal Set", "Key to the Crucible", "Key to Decay", "Maddening Object", "Crest of the Elderslayers", "Timeless Eternal Emblem", "Timeless Karui Emblem", "Timeless Vaal Emblem", "Timeless Templar Emblem", "Timeless Maraketh Emblem", "Unrelenting Timeless Eternal Emblem", "Unrelenting Timeless Karui Emblem", "Unrelenting Timeless Vaal Emblem", "Unrelenting Timeless Templar Emblem", "Unrelenting Timeless Maraketh Emblem", "Simulacrum", "Sacred Blossom", "Ritual Vessel", "The Maven's Writ", "Ancient Reliquary Key", "Timeworn Reliquary Key", "Vaal Reliquary Key", "Forgotten Reliquary Key", "Visceral Reliquary Key", "Shiny Reliquary Key", "Archive Reliquary Key", "Oubliette Reliquary Key", "Cosmic Reliquary Key", "Decaying Reliquary Key", "Voidborn Reliquary Key", "Valdo's Puzzle Box", "Divine Vessel", "Awakening Fragment", "Cosmic Fragment", "Blazing Fragment", "Reality Fragment", "Decaying Fragment", "Devouring Fragment", "Synthesising Fragment", "Blessing of Xoph", "Blessing of Tul", "Blessing of Esh", "Blessing of Uul-Netol", "Blessing of Chayula", "Xoph's Breachstone", "Tul's Breachstone", "Esh's Breachstone", "Uul-Netol's Breachstone", "Chayula's Breachstone", "Xoph's Flawless Breachstone", "Tul's Flawless Breachstone", "Esh's Flawless Breachstone", "Uul-Netol's Flawless Breachstone", "Chayula's Flawless Breachstone", "Reliquary Scarab", "Reliquary Scarab of Overlords", "Reliquary Scarab of Vision", "Sulphite Scarab", "Sulphite Scarab of Greed", "Sulphite Scarab of Fumes", "Divination Scarab", "Divination Scarab of Curation", "Divination Scarab of Completion", "Torment Scarab", "Torment Scarab of Peculiarity", "Torment Scarab of Release", "Torment Scarab of Possession", "Anarchy Scarab", "Anarchy Scarab of Gigantification", "Anarchy Scarab of Partnership", "Ritual Scarab of Selectiveness", "Ritual Scarab of Recognition", "Ritual Scarab of Abundance", "Harvest Scarab", "Harvest Scarab of Doubling", "Harvest Scarab of Cornucopia", "Bestiary Scarab", "Bestiary Scarab of the Herd", "Bestiary Scarab of Duplicating", "Bestiary Scarab of the Shadowed Crow", "Influencing Scarab of the Shaper", "Influencing Scarab of the Elder", "Influencing Scarab of Hordes", "Influencing Scarab of Conversion", "Harbinger Scarab", "Harbinger Scarab of Discernment", "Harbinger Scarab of Regency", "Harbinger Scarab of Warhoards", "Abyss Scarab", "Abyss Scarab of Multitudes", "Abyss Scarab of Emptiness", "Abyss Scarab of Edifice", "Abyss Scarab of Profound Depth", "Essence Scarab", "Essence Scarab of Ascent", "Essence Scarab of Stability", "Essence Scarab of Calcification", "Essence Scarab of Adaptation", "Domination Scarab", "Domination Scarab of Abnormality", "Domination Scarab of Teachings", "Domination Scarab of Terrors", "Incursion Scarab", "Incursion Scarab of Invasion", "Incursion Scarab of Champions", "Incursion Scarab of Timelines", "Betrayal Scarab", "Betrayal Scarab of Intelligence", "Betrayal Scarab of Reinforcements", "Betrayal Scarab of Perpetuation", "Blight Scarab", "Blight Scarab of Bounty", "Blight Scarab of Oils", "Blight Scarab of Blooming", "Blight Scarab of Invigoration", "Breach Scarab", "Breach Scarab of the Dreamer", "Breach Scarab of Lordship", "Breach Scarab of Splintering", "Breach Scarab of Snares", "Breach Scarab of Resonant Cascade", "Legion Scarab", "Legion Scarab of Officers", "Legion Scarab of Command", "Legion Scarab of The Sekhema", "Legion Scarab of Eternal Conflict", "Cartography Scarab", "Cartography Scarab of Ascension", "Cartography Scarab of Singularity", "Cartography Scarab of Corruption", "Cartography Scarab of Duplication", "Beyond Scarab", "Beyond Scarab of Haemophilia", "Beyond Scarab of Corruption", "Beyond Scarab of Resurgence", "Beyond Scarab of the Invasion", "Ambush Scarab", "Ambush Scarab of Hidden Compartments", "Ambush Scarab of Potency", "Ambush Scarab of Containment", "Ambush Scarab of Discernment", "Ultimatum Scarab", "Ultimatum Scarab of Bribing", "Ultimatum Scarab of Dueling", "Ultimatum Scarab of Catalysing", "Ultimatum Scarab of Inscription", "Expedition Scarab", "Expedition Scarab of Runefinding", "Expedition Scarab of Verisium Powder", "Expedition Scarab of the Skald", "Expedition Scarab of Archaeology", "Delirium Scarab", "Delirium Scarab of Mania", "Delirium Scarab of Paranoia", "Delirium Scarab of Neuroses", "Delirium Scarab of Delusions", "Scarab of Monstrous Lineage", "Scarab of Adversaries", "Mysterious Scarab", "Scarab of Hunted Traitors", "Scarab of Stability", "Scarab of Wisps", "Scarab of Radiant Storms", "Horned Scarab of Bloodlines", "Horned Scarab of Nemeses", "Horned Scarab of Preservation", "Horned Scarab of Awakening", "Horned Scarab of Tradition", "Horned Scarab of Glittering", "Horned Scarab of Pandemonium", "Writhing Invitation", "Screaming Invitation", "Polaric Invitation", "Incandescent Invitation", "Splinter of Xoph", "Splinter of Tul", "Splinter of Esh", "Splinter of Uul-Netol", "Splinter of Chayula", "Timeless Eternal Empire Splinter", "Timeless Karui Splinter", "Timeless Vaal Splinter", "Timeless Templar Splinter", "Timeless Maraketh Splinter", "Simulacrum Splinter", "Crescent Splinter", "Ritual Splinter"]}, 
     {name: "Expedition Currency", data: ["Astragali", "Exotic Coinage", "Scrap Metal", "Burial Medallion"]},
@@ -24,8 +21,8 @@ let sellable = [
     {name: "Essences", data: ["Whispering Essence of Hatred", "Muttering Essence of Hatred", "Weeping Essence of Hatred", "Wailing Essence of Hatred", "Screaming Essence of Hatred", "Shrieking Essence of Hatred", "Deafening Essence of Hatred", "Whispering Essence of Woe", "Muttering Essence of Woe", "Weeping Essence of Woe", "Wailing Essence of Woe", "Screaming Essence of Woe", "Shrieking Essence of Woe", "Deafening Essence of Woe", "Whispering Essence of Greed", "Muttering Essence of Greed", "Weeping Essence of Greed", "Wailing Essence of Greed", "Screaming Essence of Greed", "Shrieking Essence of Greed", "Deafening Essence of Greed", "Whispering Essence of Contempt", "Muttering Essence of Contempt", "Weeping Essence of Contempt", "Wailing Essence of Contempt", "Screaming Essence of Contempt", "Shrieking Essence of Contempt", "Deafening Essence of Contempt", "Muttering Essence of Sorrow", "Weeping Essence of Sorrow", "Wailing Essence of Sorrow", "Screaming Essence of Sorrow", "Shrieking Essence of Sorrow", "Deafening Essence of Sorrow", "Muttering Essence of Anger", "Weeping Essence of Anger", "Wailing Essence of Anger", "Screaming Essence of Anger", "Shrieking Essence of Anger", "Deafening Essence of Anger", "Muttering Essence of Torment", "Weeping Essence of Torment", "Wailing Essence of Torment", "Screaming Essence of Torment", "Shrieking Essence of Torment", "Deafening Essence of Torment", "Muttering Essence of Fear", "Weeping Essence of Fear", "Wailing Essence of Fear", "Screaming Essence of Fear", "Shrieking Essence of Fear", "Deafening Essence of Fear", "Weeping Essence of Suffering", "Wailing Essence of Suffering", "Screaming Essence of Suffering", "Shrieking Essence of Suffering", "Deafening Essence of Suffering", "Weeping Essence of Rage", "Wailing Essence of Rage", "Screaming Essence of Rage", "Shrieking Essence of Rage", "Deafening Essence of Rage", "Weeping Essence of Wrath", "Wailing Essence of Wrath", "Screaming Essence of Wrath", "Shrieking Essence of Wrath", "Deafening Essence of Wrath", "Weeping Essence of Doubt", "Wailing Essence of Doubt", "Screaming Essence of Doubt", "Shrieking Essence of Doubt", "Deafening Essence of Doubt", "Wailing Essence of Anguish", "Screaming Essence of Anguish", "Shrieking Essence of Anguish", "Deafening Essence of Anguish", "Wailing Essence of Loathing", "Screaming Essence of Loathing", "Shrieking Essence of Loathing", "Deafening Essence of Loathing", "Wailing Essence of Spite", "Screaming Essence of Spite", "Shrieking Essence of Spite", "Deafening Essence of Spite", "Wailing Essence of Zeal", "Screaming Essence of Zeal", "Shrieking Essence of Zeal", "Deafening Essence of Zeal", "Screaming Essence of Misery", "Shrieking Essence of Misery", "Deafening Essence of Misery", "Screaming Essence of Dread", "Shrieking Essence of Dread", "Deafening Essence of Dread", "Screaming Essence of Scorn", "Shrieking Essence of Scorn", "Deafening Essence of Scorn", "Screaming Essence of Envy", "Shrieking Essence of Envy", "Deafening Essence of Envy", "Essence of Hysteria", "Essence of Insanity", "Essence of Horror", "Essence of Delirium", "Remnant of Corruption"]} 
     ];
 
-async function windowListener(mutationList) {
-    for (mutation of mutationList) {
+async function windowListener(mutation_list) {
+    for (mutation of mutation_list) {
         let my_buttons = document.getElementsByClassName("btn chaos-search-button")
         if (my_buttons.length == 0) {
             let chaos_button = document.createElement("button");
@@ -52,35 +49,35 @@ async function windowListener(mutationList) {
         if (mutation.target.className == 'results') {
             let rows = mutation.target.getElementsByClassName('row exchange');
             for (row of rows) {
-                var hasButton = row.querySelector('.btn-undercut');
-                if (hasButton == null) {
-                    const rowID = row.getAttribute('data-id');
-                    const haveRatio = Number(row.querySelector(".per-have > span:last-child").innerText.match(/[\d\.]*/));
-                    const wantRatio = Number(row.querySelector(".per-want > span:last-child").innerText.match(/[\d\.]*/));
-                    const currencyType = row.querySelector('.price-right .currency-text').innerText;
-                    const sellType = row.querySelector('.price-left .currency-text').innerText;
+                var has_button = row.querySelector('.btn-undercut');
+                if (has_button == null) {
+                    const row_ID = row.getAttribute('data-id');
+                    const have_ratio = Number(row.querySelector(".per-have > span:last-child").innerText.match(/[\d\.]*/));
+                    const want_ratio = Number(row.querySelector(".per-want > span:last-child").innerText.match(/[\d\.]*/));
+                    const currency_to_sell_for = row.querySelector('.price-right .currency-text').innerText;
+                    const my_item = row.querySelector('.price-left .currency-text').innerText;
                     
-                    if (currencyType == 'Chaos Orb' || currencyType == 'Divine Orb'){
+                    if (currency_to_sell_for == 'Chaos Orb' || currency_to_sell_for == 'Divine Orb'){
                         let button = document.createElement("button");
                         button.innerHTML = "Undercut";
                         button.classList.add("btn", "btn-default", "btn-undercut");
-                        button.name = `${rowID}_Undercut`
+                        button.name = `${row_ID}_Undercut`
                         button.onclick = function () {
-                            clipboardMod(haveRatio, wantRatio, currencyType, sellType);
+                            clipboardMod(have_ratio, want_ratio, currency_to_sell_for, my_item);
                         };
                         row.querySelector('.price').prepend(button);
                         
                         let adv_pricing = false;
-                        await chrome.storage.sync.get(["advancedPricing"]).then((items) => {
-                            adv_pricing = items.advancedPricing;
+                        await chrome.storage.sync.get(["advanced_pricing"]).then((items) => {
+                            adv_pricing = items.advanced_pricing;
                         });
                         if (adv_pricing) {
                             button = document.createElement("button");
-                            button.innerHTML = "Adv Price";
+                            button.innerHTML = "Adv. Price";
                             button.classList.add("btn", "btn-default", "btn-advanced");
-                            button.name = `${rowID}_Advanced`
+                            button.name = `${row_ID}_Advanced`
                             button.onclick = function () {
-                                openAdvancedPricingWindow(haveRatio, wantRatio, currencyType, sellType);
+                                openAdvancedPricingWindow(have_ratio, want_ratio, currency_to_sell_for, my_item);
                             };
                             row.querySelector('.price').prepend(button);
                         }
@@ -107,7 +104,7 @@ async function getCurrencyFromClipboard() {
     let item_name = "";
     let stack_size = 0;
 
-    for (row of sellable) {
+    for (row of global_sellable) {
         for (d of row["data"]) {
             if (item_text.includes(d) && !item_text.includes(d + " ")) {
                 header_text = row["name"];
@@ -133,16 +130,16 @@ async function getCurrencyFromClipboard() {
         let debug_mode = false;
         let debug_item_count = 0;
         let debug_item_name = "";
-        await chrome.storage.sync.get(["debugMode", "debugItemCount", "debugItemName"]).then((items) => {
-            debug_mode = items.debugMode;
-            debug_item_count = items.debugItemCount
-            debug_item_name = items.debugItemName
+        await chrome.storage.sync.get(["debug_mode", "debug_item_count", "debug_item_name"]).then((items) => {
+            debug_mode = items.debug_mode;
+            debug_item_count = items.debug_item_count
+            debug_item_name = items.debug_item_name
         });
 
         console.log("Getting debug currency: " + debug_item_name);
 
         if (debug_mode) {
-            for (row of sellable) {
+            for (row of global_sellable) {
                 for (d of row["data"]) {
                     if (debug_item_name.includes(d) && !debug_item_name.includes(d + " ")) {
                         header_text = row["name"];
@@ -174,8 +171,8 @@ async function selectCurrency(currency_name, header_text, sell_for, stack_size) 
     }
     //Get the search percentage setting
     let search_percent = 100;
-    await chrome.storage.sync.get(["searchPercent"]).then((items) => {
-        search_percent = items.searchPercent;
+    await chrome.storage.sync.get(["search_percent"]).then((items) => {
+        search_percent = items.search_percent;
     });
     
     //Step 1, press clear
@@ -240,48 +237,48 @@ async function selectCurrency(currency_name, header_text, sell_for, stack_size) 
     document.querySelector(".btn.search-btn").click();
 }
 
-async function openAdvancedPricingWindow(haveRatio, wantRatio, currencyType, sellType) {
+async function openAdvancedPricingWindow(have_ratio, want_ratio, currency_type, sell_type) {
     
-    if (currencyType != 'Chaos Orb' && currencyType != "Divine Orb") {
+    if (currency_type != 'Chaos Orb' && currency_type != "Divine Orb") {
         return;
     }
 
     let orb = 'chaos'
-    if (currencyType == 'Divine Orb') {
+    if (currency_type == 'Divine Orb') {
         orb = 'divine'
     }
 
     let t = await getCurrencyFromClipboard();
     
-    if (t.item_name != sellType) {
+    if (t.item_name != sell_type) {
         alert("Clipboard does not contain the description of the item in this result. Please re-copy from the game client.");
         return
     }
 
-    await chrome.runtime.sendMessage({price_info: `stack=${t.stack_size}&have=${haveRatio}&want=${wantRatio}&currency=${currencyType}&sell=${sellType}`});
+    await chrome.runtime.sendMessage({price_info: `stack=${t.stack_size}&have=${have_ratio}&want=${want_ratio}&currency=${currency_type}&sell=${sell_type}`});
 }
 
-async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
+async function clipboardMod(have_ratio, want_ratio, currency_type, sell_type) {
     
-    if (currencyType != 'Chaos Orb' && currencyType != "Divine Orb") {
+    if (currency_type != 'Chaos Orb' && currency_type != "Divine Orb") {
         return;
     }
 
     let orb = 'chaos'
-    if (currencyType == 'Divine Orb') {
+    if (currency_type == 'Divine Orb') {
         orb = 'divine'
     }
 
     let t = await getCurrencyFromClipboard();
     
-    if (t.item_name != sellType) {
+    if (t.item_name != sell_type) {
         alert("Clipboard does not contain the description of the item in this result. Please re-copy from the game client.");
         return
     }
 
     let price = 0
-    if (haveRatio >= 1) {
-        price = haveRatio * t.stack_size;
+    if (have_ratio >= 1) {
+        price = have_ratio * t.stack_size;
         if (price - Math.floor(price) === 0) {
             price -= 1;
         } else {
@@ -289,8 +286,8 @@ async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
         }
     }
     else {
-        price = Math.floor((t.stack_size - 1) / wantRatio)
-        t.stack_size = Math.round(price * wantRatio) + 1
+        price = Math.floor((t.stack_size - 1) / want_ratio)
+        t.stack_size = Math.round(price * want_ratio) + 1
     }
 
     if (price > 0){
@@ -302,4 +299,4 @@ async function clipboardMod(haveRatio, wantRatio, currencyType, sellType) {
 }
 
 
-windowObserver.observe(target, {childList: true, subtree: true});
+global_window_observer.observe(global_target, {childList: true, subtree: true});

@@ -45,6 +45,7 @@ function updatePrice() {
   //in this case the slider value is the number of currency items you will get per sale.
   if (unit_price < 1) {
     sell_stack_size = Math.ceil(want_ratio * slider_value + .000000001);
+    sell_price = slider_value;
     trades = Math.floor(stack_size / sell_stack_size);
     left = stack_size - (trades * sell_stack_size);
     selling.innerHTML = `Selling ${sell_stack_size}`
